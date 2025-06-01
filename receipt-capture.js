@@ -57,6 +57,9 @@
       allowTaint: true,
       backgroundColor: '#ffffff',
       logging: false,
+      ignoreElements: element => {
+        return element.tagName.toLowerCase() === 'button';
+      },
       onclone: function (clonedDoc) {
         return clonedDoc;
       },
