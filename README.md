@@ -4,7 +4,7 @@
   네이버페이 주문 영수증을 쉽고 빠르게 다운로드하는 크롬 확장 프로그램입니다.
 </p>
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/142c7d77-5d89-4610-a776-a291b5867b18" />
+    <img src="https://github.com/user-attachments/assets/9d84837e-0afb-4b2c-ad1f-04b0731a1711" />
 </p>
 
 ## ✨ 주요 기능
