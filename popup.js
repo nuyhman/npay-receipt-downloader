@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.runtime.sendMessage({ action: 'getCapturedImages' }, response => {
     if (response && response.count > 0) {
       const btn = document.getElementById('downloadCombined');
-      btn.textContent = `통합 이미지 다운로드 (${response.count}개)`;
+      btn.textContent = `이미지 병합 후 저장하기(${response.count}개)`;
       btn.style.display = 'block';
     }
   });

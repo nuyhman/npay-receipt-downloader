@@ -5,16 +5,40 @@
     <title>NPay Receipt Downloader</title>
     <style>
       body {
-        width: 300px;
-        padding: 10px;
+        width: 320px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
           Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       }
-      h2 {
-        font-size: 16px;
-        margin-bottom: 10px;
-        color: #333;
+      header {
+        position: relative;
+        width: 100vw;
+        height: 32px;
+        background-color: #03c75a;
+        padding: 20px;
+        left: -12px;
+        top: -12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
+      main {
+        margin-top: -8px;
+        padding: 0 10px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+      }
+      header h2 {
+        font-size: 16px;
+        background-color: #03c75a;
+        margin: 0;
+      }
+      header p {
+        margin: 0;
+      }
+
       button {
         width: 100%;
         padding: 8px;
@@ -27,6 +51,9 @@
       .description {
         margin-bottom: 15px;
         font-size: 14px;
+      }
+      .description li {
+        word-break: keep-all;
       }
       .form-group {
         margin-top: 15px;
@@ -105,96 +132,129 @@
     </style>
   </head>
   <body>
-    <h2>N 주문 영수증 <small>후두다닥</small></h2>
-    <div class="form-group">
-      <label for="monthSelect" class="form-label">조회할 월 선택</label>
-      <div class="form-field">
-        <select id="monthSelect" class="form-control">
-          <option value="1">1월</option>
-          <option value="2">2월</option>
-          <option value="3">3월</option>
-          <option value="4">4월</option>
-          <option value="5">5월</option>
-          <option value="6">6월</option>
-          <option value="7">7월</option>
-          <option value="8">8월</option>
-          <option value="9">9월</option>
-          <option value="10">10월</option>
-          <option value="11">11월</option>
-          <option value="12">12월</option>
-        </select>
-        <button id="openOrdersBtn">결제내역 조회</button>
+    <header>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        style="
+          background-color: rgba(0, 0, 0, 0.15);
+          padding: 4px;
+          border-radius: 8px;
+        "
+        aria-hidden="true"
+        role="img"
+        focusable="false"
+        aria-label="영수증 아이콘"
+      >
+        <path
+          d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"
+        ></path>
+        <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+        <path d="M12 17.5v-11"></path>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <h2>N 주문 영수증 후두다닥</h2>
+        <p>NPay 결제내역 간편 조회 및 영수증 받기</p>
       </div>
-    </div>
-
-    <!-- 총액 표시 영역 추가 -->
-    <div class="form-group" id="totalPriceContainer" style="display: none">
-      <label class="form-label">총 결제 금액</label>
-      <div class="price-display" id="totalPriceDisplay">0원</div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">다운로드 방식</label>
-      <div style="display: flex; align-items: center; gap: 16px">
-        <div style="display: flex; align-items: center">
-          <input
-            type="radio"
-            id="combinedDownload"
-            name="downloadMode"
-            value="combined"
-            checked
-            style="width: 16px; height: 16px; cursor: pointer"
-          />
-          <label
-            for="combinedDownload"
-            style="margin-left: 5px; font-weight: normal; font-size: 14px"
-            >통합 다운로드</label
-          >
-        </div>
-        <div style="display: flex; align-items: center">
-          <input
-            type="radio"
-            id="individualDownload"
-            name="downloadMode"
-            value="individual"
-            style="width: 16px; height: 16px; cursor: pointer"
-          />
-          <label
-            for="individualDownload"
-            style="margin-left: 5px; font-weight: normal; font-size: 14px"
-            >개별 다운로드</label
-          >
+    </header>
+    <main>
+      <div class="form-group">
+        <label for="monthSelect" class="form-label">월 선택</label>
+        <div class="form-field">
+          <select id="monthSelect" class="form-control">
+            <option value="1">1월</option>
+            <option value="2">2월</option>
+            <option value="3">3월</option>
+            <option value="4">4월</option>
+            <option value="5">5월</option>
+            <option value="6">6월</option>
+            <option value="7">7월</option>
+            <option value="8">8월</option>
+            <option value="9">9월</option>
+            <option value="10">10월</option>
+            <option value="11">11월</option>
+            <option value="12">12월</option>
+          </select>
+          <button id="openOrdersBtn">결제내역 조회</button>
         </div>
       </div>
-    </div>
 
-    <button id="downloadStart">시작하기</button>
+      <!-- 총액 표시 영역 추가 -->
+      <div class="form-group" id="totalPriceContainer" style="display: none">
+        <label class="form-label">총 결제 금액</label>
+        <div class="price-display" id="totalPriceDisplay">0원</div>
+      </div>
 
-    <!-- 통합 이미지 다운로드 버튼 (숨겨진 상태로 시작) -->
-    <button
-      id="downloadCombined"
-      style="
-        display: none;
-        margin-top: 10px;
-        background-color: #defae4;
-        color: #09ab49;
-      "
-    >
-      통합 이미지 다운로드 (0개)
-    </button>
+      <div class="form-group">
+        <label class="form-label">저장 방식 선택</label>
+        <div style="display: flex; align-items: center; gap: 16px">
+          <div style="display: flex; align-items: center">
+            <input
+              type="radio"
+              id="combinedDownload"
+              name="downloadMode"
+              value="combined"
+              checked
+              style="width: 16px; height: 16px; cursor: pointer"
+            />
+            <label
+              for="combinedDownload"
+              style="margin-left: 5px; font-weight: normal; font-size: 14px"
+              >한 번에 저장</label
+            >
+          </div>
+          <div style="display: flex; align-items: center">
+            <input
+              type="radio"
+              id="individualDownload"
+              name="downloadMode"
+              value="individual"
+              style="width: 16px; height: 16px; cursor: pointer"
+            />
+            <label
+              for="individualDownload"
+              style="margin-left: 5px; font-weight: normal; font-size: 14px"
+              >하나씩 저장
+            </label>
+          </div>
+        </div>
+      </div>
 
-    <!-- 안내문구 -->
-    <ul class="description">
-      <li>결제 내역이 많은 경우 ‘이전 내역 더보기’를 클릭해 주세요.</li>
-      <li>
-        영수증 다운로드 후 아이콘을 클릭하면 총 결제 금액을 확인할 수 있어요.
-      </li>
-      <li>
-        통합 다운로드 방식은 영수증을 하나의 이미지로 합쳐서 다운로드해요.
-        영수증 탭이 닫힌 뒤 아이콘을 클릭하면 통합 이미지 다운로드를 할 수
-        있어요.
-      </li>
-    </ul>
+      <button id="downloadStart">시작하기</button>
+
+      <!-- 통합 이미지 다운로드 버튼 (숨겨진 상태로 시작) -->
+      <button
+        id="downloadCombined"
+        style="
+          display: none;
+          margin-top: 10px;
+          background-color: #defae4;
+          color: #09ab49;
+        "
+      >
+        이미지 병합 후 저장하기 (0개)
+      </button>
+
+      <!-- 안내문구 -->
+      <ul class="description">
+        <li>결제 내역이 많은 경우 ‘이전 내역 더보기’를 클릭해 주세요.</li>
+        <li>
+          영수증 다운로드 후 아이콘을 클릭하면 총 결제 금액을 확인할 수 있어요.
+        </li>
+        <li>
+          ‘한 번에 저장’ 방식은 영수증을 하나의 이미지로 합쳐서 다운로드해요.
+          영수증 탭이 닫힌 뒤 아이콘을 클릭하면 ‘이미지 병합 후 저장하기’를 할
+          수 있어요.
+        </li>
+      </ul>
+    </main>
     <script src="popup.js"></script>
   </body>
 </html>
