@@ -115,6 +115,11 @@ document.getElementById('openOrdersBtn').addEventListener('click', () => {
 
 document.getElementById('downloadStart').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  // 현재 탭이 네이버페이 영수증 페이지인지 확인
+  if (!tab.url.includes('new-m.pay.naver.com/pcpay')) {
+    alert('네이버페이 결제내역 페이지에서만 사용할 수 있습니다.');
+    return;
+  }
 
   // 저장된 이미지가 있는지 확인하고 초기화
   try {
