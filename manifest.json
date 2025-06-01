@@ -35,7 +35,6 @@
       ],
       "js": [
         "lib/html2canvas.min.js",
-        "lib/jspdf.umd.min.js",
         "receipt-capture.js"
       ],
       "run_at": "document_idle"
