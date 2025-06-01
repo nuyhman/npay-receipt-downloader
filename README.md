@@ -1,6 +1,11 @@
 # 🧾 NPay 영수증 후두다닥 (NPay Receipt Downloader)
 
-네이버페이 주문 영수증을 쉽고 빠르게 다운로드하는 크롬 확장 프로그램입니다.
+<p align="center">
+  네이버페이 주문 영수증을 쉽고 빠르게 다운로드하는 크롬 확장 프로그램입니다.
+</p>
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/6db88557-5a49-47a4-99e7-a5cec9eceba8" />
+</p>
 
 ## ✨ 주요 기능
 
