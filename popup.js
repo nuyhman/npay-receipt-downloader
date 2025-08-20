@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // 영수증 캡처 버튼
   document.getElementById('captureBtn')?.addEventListener('click', () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const currentUrl = tabs[0].url;
       if (currentUrl.includes('m.pay.naver.com/o/receipt/purchase/')) {
         chrome.tabs.sendMessage(tabs[0].id, { action: 'captureReceipt' });
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 백그라운드에서 저장된 총액 로드 및 표시
-  chrome.runtime.sendMessage({ action: 'getTotalPrice' }, response => {
+  chrome.runtime.sendMessage({ action: 'getTotalPrice' }, (response) => {
     console.log('백그라운드에서 받은 응답:', response);
     if (response && response.totalPrice) {
       displayTotalPrice(response.totalPrice);
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 팝업이 열릴 때마다 캡처된 이미지가 있는지 확인하고 버튼 표시
-  chrome.runtime.sendMessage({ action: 'getCapturedImages' }, response => {
+  chrome.runtime.sendMessage({ action: 'getCapturedImages' }, (response) => {
     if (response && response.count > 0) {
       const btn = document.getElementById('downloadCombined');
       btn.textContent = `이미지 병합 후 저장하기(${response.count}개)`;
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             action: 'setCombinedDownloadMode',
             enabled: true,
           },
-          response => {
+          (response) => {
             console.log('통합 다운로드 모드로 설정됨:', response);
           }
         );
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 통합 이미지 다운로드 버튼 이벤트 리스너
   document.getElementById('downloadCombined')?.addEventListener('click', () => {
-    chrome.runtime.sendMessage({ action: 'getCapturedImages' }, response => {
+    chrome.runtime.sendMessage({ action: 'getCapturedImages' }, (response) => {
       if (response && response.images.length > 0) {
         console.log(`${response.count}개 이미지 결합 시작`);
         combineImages(response.images);
@@ -93,7 +93,7 @@ document.getElementById('openOrdersBtn').addEventListener('click', () => {
     const firstDay = new Date(year, month - 1, 1);
     const lastDay = new Date(year, month, 0);
 
-    const format = date =>
+    const format = (date) =>
       `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
         2,
         '0'
@@ -116,7 +116,7 @@ document.getElementById('openOrdersBtn').addEventListener('click', () => {
 document.getElementById('downloadStart').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   // 현재 탭이 네이버페이 영수증 페이지인지 확인
-  if (!tab.url.includes('new-m.pay.naver.com/pcpay')) {
+  if (!tab.url.includes('pay.naver.com/pc/history')) {
     alert('네이버페이 결제내역 페이지에서만 사용할 수 있습니다.');
     return;
   }
@@ -124,13 +124,13 @@ document.getElementById('downloadStart').addEventListener('click', async () => {
   // 저장된 이미지가 있는지 확인하고 초기화
   try {
     // Promise 기반으로 변환하여 처리
-    const response = await new Promise(resolve => {
+    const response = await new Promise((resolve) => {
       chrome.runtime.sendMessage({ action: 'getCapturedImages' }, resolve);
     });
 
     if (response && response.count > 0) {
       // 저장된 이미지가 있으면 초기화
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         chrome.runtime.sendMessage({ action: 'clearCapturedImages' }, resolve);
       });
       console.log('기존에 저장된 이미지를 초기화했습니다.');
@@ -167,7 +167,7 @@ document.getElementById('downloadStart').addEventListener('click', async () => {
 // 이미지 결합 함수
 function combineImages(images) {
   // 이미지 로드
-  const loadImage = src => {
+  const loadImage = (src) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
@@ -177,8 +177,8 @@ function combineImages(images) {
   };
 
   // 모든 이미지 로드
-  Promise.all(images.map(img => loadImage(img.imageData)))
-    .then(loadedImages => {
+  Promise.all(images.map((img) => loadImage(img.imageData)))
+    .then((loadedImages) => {
       // 캔버스 생성
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -187,7 +187,7 @@ function combineImages(images) {
       let totalHeight = 0;
       let maxWidth = 0;
 
-      loadedImages.forEach(img => {
+      loadedImages.forEach((img) => {
         totalHeight += img.height;
         maxWidth = Math.max(maxWidth, img.width);
       });
@@ -200,7 +200,7 @@ function combineImages(images) {
 
       // 이미지 그리기
       let y = 0;
-      loadedImages.forEach(img => {
+      loadedImages.forEach((img) => {
         // 중앙 정렬
         const x = (maxWidth - img.width) / 2;
         ctx.drawImage(img, x, y);
@@ -230,7 +230,7 @@ function combineImages(images) {
         }
       );
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('이미지 결합 중 오류 발생:', error);
       alert('이미지 결합에 실패했습니다.');
     });
