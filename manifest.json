@@ -1,6 +1,6 @@
 {
   "name": "NPay Receipt Downloader",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "manifest_version": 3,
   "description": "A Chrome extension to capture and save Naver Pay receipts.",
   "permissions": [
