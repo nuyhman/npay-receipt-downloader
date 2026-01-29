@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 주문 내역 페이지 버튼
 document.getElementById('openOrdersBtn').addEventListener('click', () => {
-  const keyword = '낙타,모멘토';
+  const keyword = '낙타,팀커피';
   function getMonthRange(month, year = new Date().getFullYear()) {
     const firstDay = new Date(year, month - 1, 1);
     const lastDay = new Date(year, month, 0);
