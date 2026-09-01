@@ -1,4 +1,34 @@
-document.addEventListener('DOMContentLoaded', () => {
+// 현재 탭이 네이버페이 결제내역 페이지인지에 따라 단계가 정해진다.
+const HISTORY_URL_PART = 'pay.naver.com/pc/history';
+
+// 결합 이미지 버튼 라벨은 세 곳에서 쓰이므로 한 군데서 만든다.
+function mergeButtonLabel(count) {
+  return `이미지 병합 후 저장하기 (${count}개)`;
+}
+
+function setStep(step) {
+  document.querySelector('main').dataset.step = String(step);
+  document.getElementById('stepLabel').textContent =
+    step === 1 ? '결제내역 열기' : '영수증 받기';
+  document.getElementById('stepNum').textContent =
+    step === 1 ? '01 / 02' : '02 / 02';
+  document.getElementById('stepBar').style.width = step === 1 ? '50%' : '100%';
+  document.querySelector('.steps').setAttribute('aria-valuenow', String(step));
+}
+
+function syncMonthLabels() {
+  const month = document.getElementById('monthSelect').value;
+  document.getElementById('openOrdersBtn').textContent = `${month}월 결제내역 열기`;
+  document.getElementById('recapMonth').textContent = `${month}월`;
+}
+
+// 결제내역 페이지 URL에 남아 있는 startDate에서 월을 읽는다.
+function monthFromUrl(url) {
+  const match = /[?&]startDate=\d{4}-(\d{2})-/.exec(url || '');
+  return match ? String(parseInt(match[1], 10)) : null;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   // 영수증 캡처 버튼
   document.getElementById('captureBtn')?.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -20,22 +50,50 @@ document.addEventListener('DOMContentLoaded', () => {
     monthSelect.value = currentMonth.toString();
   }
 
+  // 현재 탭을 보고 단계를 정한다. 결제내역 페이지가 아니면 1단계만 보여주므로
+  // '시작하기'가 아예 나오지 않고, 잘못 눌러 경고를 띄울 일도 없다.
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const onHistoryPage = !!(tab && tab.url && tab.url.includes(HISTORY_URL_PART));
+
+  // 결제내역 페이지에 있다면 URL의 기간이 실제로 조회 중인 달이다.
+  const urlMonth = monthFromUrl(tab && tab.url);
+  if (urlMonth) {
+    monthSelect.value = urlMonth;
+  }
+
+  syncMonthLabels();
+  setStep(onHistoryPage ? 2 : 1);
+  monthSelect.addEventListener('change', syncMonthLabels);
+
+  document.getElementById('changeMonthBtn').addEventListener('click', () => {
+    setStep(1);
+  });
+
+  // 총액은 background가 storage에도 저장한다. 서비스워커를 깨우는 것보다 빠르므로
+  // storage로 먼저 확인해서, 보여줄 값이 있을 때만 자리를 잡고 로딩 표시를 띄운다.
+  // (값이 없을 때 자리를 잡았다가 접으면 그게 다시 덜컹거림이 된다)
+  const cached = await chrome.storage.local.get('totalPrice');
+  if (cached && cached.totalPrice) {
+    document.getElementById('totalPriceContainer').style.display = 'block';
+    document.getElementById('totalPriceDisplay').style.display = 'none';
+    document.getElementById('priceSkeleton').style.display = 'block';
+  }
+
   // 저장된 총액과 캡처된 이미지를 한 번에 받아 레이아웃을 1회만 변경
   // (따로 처리하면 팝업 높이가 두 번 늘어나 덜컹거림)
-  Promise.all([
+  const [priceResponse, imageResponse] = await Promise.all([
     chrome.runtime.sendMessage({ action: 'getTotalPrice' }),
     chrome.runtime.sendMessage({ action: 'getCapturedImages' }),
-  ]).then(([priceResponse, imageResponse]) => {
-    console.log('백그라운드에서 받은 응답:', priceResponse, imageResponse);
-    if (priceResponse && priceResponse.totalPrice) {
-      displayTotalPrice(priceResponse.totalPrice);
-    }
-    if (imageResponse && imageResponse.count > 0) {
-      const btn = document.getElementById('downloadCombined');
-      btn.textContent = `이미지 병합 후 저장하기(${imageResponse.count}개)`;
-      btn.style.display = 'block';
-    }
-  });
+  ]);
+  console.log('백그라운드에서 받은 응답:', priceResponse, imageResponse);
+
+  displayTotalPrice(priceResponse && priceResponse.totalPrice);
+
+  if (imageResponse && imageResponse.count > 0) {
+    const btn = document.getElementById('downloadCombined');
+    btn.textContent = mergeButtonLabel(imageResponse.count);
+    btn.style.display = 'block';
+  }
 
   // 다운로드 모드 라디오 버튼 이벤트 리스너
   const individualRadio = document.getElementById('individualDownload');
@@ -115,9 +173,9 @@ document.getElementById('openOrdersBtn').addEventListener('click', () => {
 
 document.getElementById('downloadStart').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  // 현재 탭이 네이버페이 영수증 페이지인지 확인
-  if (!tab.url.includes('pay.naver.com/pc/history')) {
-    alert('네이버페이 결제내역 페이지에서만 사용할 수 있습니다.');
+  // 단계를 정한 뒤 탭이 바뀌었을 수 있다. 경고창 대신 1단계로 되돌린다.
+  if (!tab || !tab.url || !tab.url.includes(HISTORY_URL_PART)) {
+    setStep(1);
     return;
   }
 
@@ -240,12 +298,18 @@ function combineImages(images) {
 function displayTotalPrice(price) {
   const container = document.getElementById('totalPriceContainer');
   const display = document.getElementById('totalPriceDisplay');
+  const skeleton = document.getElementById('priceSkeleton');
+
+  if (skeleton) {
+    skeleton.style.display = 'none';
+  }
 
   // 금액 표시 컨테이너와 디스플레이 요소
   if (price && container && display) {
     // 금액을 표시 형식으로 변환 (쉼표 추가)
     const formattedPrice = parseInt(price).toLocaleString();
     display.textContent = formattedPrice + '원';
+    display.style.display = 'block';
     container.style.display = 'block';
   } else if (container) {
     container.style.display = 'none';
@@ -264,7 +328,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // 모든 캡처 완료 메시지
     const btn = document.getElementById('downloadCombined');
     if (btn) {
-      btn.textContent = `통합 이미지 다운로드 (${message.count}개)`;
+      btn.textContent = mergeButtonLabel(message.count);
       btn.style.display = 'block';
     }
   } else if (message.action === 'autoCombineAndDownload') {

@@ -25,7 +25,7 @@
         gap: 8px;
       }
       main {
-        padding: 0 18px;
+        padding: 0 18px 18px;
       }
 
       header {
@@ -50,6 +50,26 @@
         border-radius: 4px;
         cursor: pointer;
       }
+      /* packages/ui 의 ic_radio / ic_radio_check 를 그대로 옮긴다.
+         (채움색만 payn-green #08C17C -> 네이버페이 #03c75a)
+         네이티브 라디오의 검은 테두리를 없애려면 appearance: none 이 필요하다. */
+      input[type='radio'] {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        padding: 0;
+        border: none;
+        cursor: pointer;
+        background-color: transparent;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 20px 20px;
+        background-image: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9.5" fill="white" stroke="%23DEE1E6"/></svg>');
+      }
+      input[type='radio']:checked {
+        background-image: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="%2303c75a"/><circle cx="12" cy="12" r="5" fill="white"/></svg>');
+      }
       .description {
         margin-bottom: 15px;
         font-size: 14px;
@@ -64,22 +84,6 @@
         padding: 12px;
         border-radius: 6px;
       }
-      .form-group .form-field {
-        display: flex;
-        flex-direction: row;
-      }
-      .form-group .form-field select {
-        flex-basis: 33%;
-      }
-      .form-group .form-field button {
-        padding: 10px;
-        margin-left: 10px;
-        flex-basis: 66%;
-        background-color: #fff;
-        border: 1px solid #03c75a;
-        color: #03c75a;
-      }
-
       .form-group .form-label {
         display: block;
         margin-bottom: 8px;
@@ -116,10 +120,19 @@
         text-align: center;
         padding: 10px 0;
       }
-      #downloadStart,
-      #downloadCombined {
-        color: #000;
+      #openOrdersBtn,
+      #downloadStart {
+        height: 52px;
         padding: 10px;
+        color: #000;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      #downloadCombined {
+        height: 48px;
+        padding: 10px;
+        color: #000;
+        font-size: 15px;
         font-weight: bold;
       }
       ul.description {
@@ -129,6 +142,137 @@
         color: #333;
         font-size: 12px;
         margin-bottom: 4px;
+      }
+
+      /* ===== 단계 표시 ===== */
+      main[data-step='1'] .step-2,
+      main[data-step='2'] .step-1 {
+        display: none;
+      }
+      .steps {
+        padding: 14px 0 0;
+      }
+      .steps .step-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #333;
+        margin-bottom: 6px;
+      }
+      .steps .step-num {
+        color: #767676;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.04em;
+      }
+      .steps .step-track {
+        height: 2px;
+        background: #dee1e6;
+        overflow: hidden;
+      }
+      .steps .step-bar {
+        height: 100%;
+        width: 50%;
+        background: #03c75a;
+        transition: width 0.22s ease-out;
+      }
+
+      /* ===== 1단계 요약 줄 ===== */
+      .recap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 15px 0;
+        padding: 10px 12px;
+        background: #f3f5f7;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #333;
+      }
+      .recap svg {
+        flex: 0 0 14px;
+        color: #03c75a;
+      }
+      .recap b {
+        font-weight: 600;
+      }
+      /* button { width: 100% } 를 되돌린다 */
+      .recap .recap-edit {
+        width: auto;
+        margin-left: auto;
+        padding: 2px 4px;
+        background: none;
+        border: none;
+        font-size: 12px;
+        color: #767676;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .recap .recap-edit:hover {
+        color: #333;
+      }
+
+      /* ===== 총액 불러오는 중 ===== */
+      .price-skeleton {
+        width: 116px;
+        height: 22px;
+        margin: 8px auto 6px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #e6e9ed 25%, #f2f4f6 50%, #e6e9ed 75%);
+        background-size: 240px 100%;
+        animation: skeleton-sweep 1.15s linear infinite;
+      }
+      @keyframes skeleton-sweep {
+        to {
+          background-position: 240px 0;
+        }
+      }
+
+      /* ===== 도움말 ===== */
+      .help {
+        border-top: 1px solid #e9ebef;
+        margin-top: 15px;
+        padding-top: 12px;
+      }
+      .help summary {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        color: #767676;
+        cursor: pointer;
+        list-style: none;
+      }
+      .help summary::-webkit-details-marker {
+        display: none;
+      }
+      .help summary .chev {
+        transition: transform 0.15s ease;
+      }
+      .help[open] summary .chev {
+        transform: rotate(90deg);
+      }
+      .help .description {
+        margin: 8px 0 0;
+      }
+
+      button:focus-visible,
+      select:focus-visible,
+      summary:focus-visible,
+      input[type='radio']:focus-visible {
+        outline: 2px solid #03c75a;
+        outline-offset: 2px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .price-skeleton {
+          animation: none;
+        }
+        .steps .step-bar,
+        .help summary .chev {
+          transition: none;
+        }
       }
     </style>
   </head>
@@ -165,10 +309,27 @@
         <p>NPay 결제내역 간편 조회 및 영수증 받기</p>
       </div>
     </header>
-    <main>
-      <div class="form-group">
-        <label for="monthSelect" class="form-label">월 선택</label>
-        <div class="form-field">
+    <main data-step="1">
+      <div
+        class="steps"
+        role="progressbar"
+        aria-valuemin="1"
+        aria-valuemax="2"
+        aria-valuenow="1"
+      >
+        <div class="step-head">
+          <span id="stepLabel">결제내역 열기</span>
+          <span class="step-num" id="stepNum">01 / 02</span>
+        </div>
+        <div class="step-track"><div class="step-bar" id="stepBar"></div></div>
+      </div>
+
+      <!-- 1단계: 달을 고르고 결제내역 페이지를 연다 -->
+      <div class="step-1">
+        <div class="form-group">
+          <label for="monthSelect" class="form-label"
+            >어느 달 영수증을 받을까요?</label
+          >
           <select id="monthSelect" class="form-control">
             <option value="1">1월</option>
             <option value="2">2월</option>
@@ -183,54 +344,75 @@
             <option value="11">11월</option>
             <option value="12">12월</option>
           </select>
-          <button id="openOrdersBtn">결제내역 조회</button>
         </div>
+        <button id="openOrdersBtn">결제내역 열기</button>
       </div>
 
-      <!-- 총액 표시 영역 추가 -->
+      <!-- 2단계: 저장 방식을 고르고 영수증을 받는다 -->
+      <div class="step-2">
+        <div class="recap">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 6L9 17l-5-5"></path>
+          </svg>
+          <span><b id="recapMonth">1월</b> 결제내역</span>
+          <button type="button" class="recap-edit" id="changeMonthBtn">
+            변경
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">저장 방식 선택</label>
+          <div style="display: flex; align-items: center; gap: 16px">
+            <div style="display: flex; align-items: center">
+              <input
+                type="radio"
+                id="combinedDownload"
+                name="downloadMode"
+                value="combined"
+                checked
+              />
+              <label
+                for="combinedDownload"
+                style="margin-left: 5px; font-weight: normal; font-size: 14px"
+                >한 번에 저장</label
+              >
+            </div>
+            <div style="display: flex; align-items: center">
+              <input
+                type="radio"
+                id="individualDownload"
+                name="downloadMode"
+                value="individual"
+              />
+              <label
+                for="individualDownload"
+                style="margin-left: 5px; font-weight: normal; font-size: 14px"
+                >하나씩 저장
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button id="downloadStart">시작하기</button>
+      </div>
+
+      <!-- 받은 결과: 단계와 무관하게, 남아 있을 때만 보인다 -->
       <div class="form-group" id="totalPriceContainer" style="display: none">
         <label class="form-label">총 결제 금액</label>
         <div class="price-display" id="totalPriceDisplay">0원</div>
+        <div class="price-skeleton" id="priceSkeleton" style="display: none"></div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">저장 방식 선택</label>
-        <div style="display: flex; align-items: center; gap: 16px">
-          <div style="display: flex; align-items: center">
-            <input
-              type="radio"
-              id="combinedDownload"
-              name="downloadMode"
-              value="combined"
-              checked
-              style="width: 16px; height: 16px; cursor: pointer"
-            />
-            <label
-              for="combinedDownload"
-              style="margin-left: 5px; font-weight: normal; font-size: 14px"
-              >한 번에 저장</label
-            >
-          </div>
-          <div style="display: flex; align-items: center">
-            <input
-              type="radio"
-              id="individualDownload"
-              name="downloadMode"
-              value="individual"
-              style="width: 16px; height: 16px; cursor: pointer"
-            />
-            <label
-              for="individualDownload"
-              style="margin-left: 5px; font-weight: normal; font-size: 14px"
-              >하나씩 저장
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <button id="downloadStart">시작하기</button>
-
-      <!-- 통합 이미지 다운로드 버튼 (숨겨진 상태로 시작) -->
       <button
         id="downloadCombined"
         style="
@@ -244,17 +426,36 @@
       </button>
 
       <!-- 안내문구 -->
-      <ul class="description">
-        <li>결제 내역이 많은 경우 ‘이전 내역 더보기’를 클릭해 주세요.</li>
-        <li>
-          영수증 다운로드 후 아이콘을 클릭하면 총 결제 금액을 확인할 수 있어요.
-        </li>
-        <li>
-          ‘한 번에 저장’ 방식은 영수증을 하나의 이미지로 합쳐서 다운로드해요.
-          영수증 탭이 닫힌 뒤 아이콘을 클릭하면 ‘이미지 병합 후 저장하기’를 할
-          수 있어요.
-        </li>
-      </ul>
+      <details class="help">
+        <summary>
+          <svg
+            class="chev"
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+          도움말
+        </summary>
+        <ul class="description">
+          <li>결제 내역이 많은 경우 ‘이전 내역 더보기’를 클릭해 주세요.</li>
+          <li>
+            영수증 다운로드 후 아이콘을 클릭하면 총 결제 금액을 확인할 수 있어요.
+          </li>
+          <li>
+            ‘한 번에 저장’ 방식은 영수증을 하나의 이미지로 합쳐서 다운로드해요.
+            영수증 탭이 닫힌 뒤 아이콘을 클릭하면 ‘이미지 병합 후 저장하기’를 할
+            수 있어요.
+          </li>
+        </ul>
+      </details>
     </main>
     <script src="popup.js"></script>
   </body>
