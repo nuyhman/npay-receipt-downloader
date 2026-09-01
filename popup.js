@@ -20,19 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
     monthSelect.value = currentMonth.toString();
   }
 
-  // 백그라운드에서 저장된 총액 로드 및 표시
-  chrome.runtime.sendMessage({ action: 'getTotalPrice' }, (response) => {
-    console.log('백그라운드에서 받은 응답:', response);
-    if (response && response.totalPrice) {
-      displayTotalPrice(response.totalPrice);
+  // 저장된 총액과 캡처된 이미지를 한 번에 받아 레이아웃을 1회만 변경
+  // (따로 처리하면 팝업 높이가 두 번 늘어나 덜컹거림)
+  Promise.all([
+    chrome.runtime.sendMessage({ action: 'getTotalPrice' }),
+    chrome.runtime.sendMessage({ action: 'getCapturedImages' }),
+  ]).then(([priceResponse, imageResponse]) => {
+    console.log('백그라운드에서 받은 응답:', priceResponse, imageResponse);
+    if (priceResponse && priceResponse.totalPrice) {
+      displayTotalPrice(priceResponse.totalPrice);
     }
-  });
-
-  // 팝업이 열릴 때마다 캡처된 이미지가 있는지 확인하고 버튼 표시
-  chrome.runtime.sendMessage({ action: 'getCapturedImages' }, (response) => {
-    if (response && response.count > 0) {
+    if (imageResponse && imageResponse.count > 0) {
       const btn = document.getElementById('downloadCombined');
-      btn.textContent = `이미지 병합 후 저장하기(${response.count}개)`;
+      btn.textContent = `이미지 병합 후 저장하기(${imageResponse.count}개)`;
       btn.style.display = 'block';
     }
   });
